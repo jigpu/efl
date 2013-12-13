@@ -565,7 +565,7 @@ ecore_x_input_raw_select(Ecore_X_Window win)
    XISetMask(emask.mask, XI_RawMotion);
 #endif
 
-   XISelectEvents(_ecore_x_disp, win, &emask, 1);
+   XISelectEvents(_ecore_x_disp, DefaultRootWindow(_ecore_x_disp), &emask, 1);
    if (_ecore_xlib_sync) ecore_x_sync();
 
    return EINA_TRUE;
