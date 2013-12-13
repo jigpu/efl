@@ -202,6 +202,17 @@ extern "C" {
               double     x, y;
            } root;
         } multi;
+        
+        struct {
+          int tool; /* 0 = pen stylus, 1 = eraser, etc. */
+          double azimuth, abswheel, c;
+          double pressure;
+          double angle;
+          double x, y; /* same as x, y root.x, root.y, but with sub-pixel precision, if available */
+          struct {
+            double      x, y;
+          } root;
+        } pen;
      };
    
    struct _Ecore_Event_Mouse_IO

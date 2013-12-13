@@ -22,6 +22,9 @@ struct _Ecore_Input_Window
    Ecore_Event_Multi_Move_Cb move_multi;
    Ecore_Event_Multi_Down_Cb down_multi;
    Ecore_Event_Multi_Up_Cb up_multi;
+   Ecore_Event_Pen_Move_Cb move_pen;
+   Ecore_Event_Pen_Down_Cb down_pen;
+   Ecore_Event_Pen_Up_Cb up_pen;
    int ignore_event;
 };
 
@@ -257,7 +260,10 @@ ecore_event_window_register(Ecore_Window id, void *window, Evas *evas,
                             Ecore_Event_Mouse_Move_Cb move_mouse,
                             Ecore_Event_Multi_Move_Cb move_multi,
                             Ecore_Event_Multi_Down_Cb down_multi,
-                            Ecore_Event_Multi_Up_Cb up_multi)
+                            Ecore_Event_Multi_Up_Cb up_multi,
+                            Ecore_Event_Pen_Move_Cb move_pen,
+                            Ecore_Event_Pen_Down_Cb down_pen,
+                            Ecore_Event_Pen_Up_Cb up_pen)
 {
    Ecore_Input_Window *w;
 
@@ -270,6 +276,9 @@ ecore_event_window_register(Ecore_Window id, void *window, Evas *evas,
    w->move_multi = move_multi;
    w->down_multi = down_multi;
    w->up_multi = up_multi;
+   w->move_pen = move_pen;
+   w->down_pen = down_pen;
+   w->up_pen = up_pen;
    w->ignore_event = 0;
 
    eina_hash_add(_window_hash, &id, w);

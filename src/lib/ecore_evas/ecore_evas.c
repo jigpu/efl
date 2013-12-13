@@ -2945,7 +2945,10 @@ ecore_evas_input_event_register(Ecore_Evas *ee)
                                (Ecore_Event_Mouse_Move_Cb)_ecore_evas_mouse_move_process,
                                (Ecore_Event_Multi_Move_Cb)_ecore_evas_mouse_multi_move_process,
                                (Ecore_Event_Multi_Down_Cb)_ecore_evas_mouse_multi_down_process,
-                               (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process);
+                               (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process,
+                               (Ecore_Event_Pen_Move_Cb)_ecore_evas_mouse_multi_move_process,
+                               (Ecore_Event_Pen_Down_Cb)_ecore_evas_mouse_multi_down_process,
+                               (Ecore_Event_Pen_Up_Cb)_ecore_evas_mouse_multi_up_process);
 }
 
 EAPI void
