@@ -261,14 +261,6 @@ _ecore_x_input_handler(XEvent *xevent)
 
              if (devid == dev->deviceid)
                {
-                  for (int z = 0; z < dev->num_classes; ++z) {
-                     XIAnyClassInfo *classinfo = dev->classes[z];
-                     if (classinfo->type == XIValuatorClass) {
-                        XIValuatorClassInfo *vci = (XIValuatorClassInfo *)classinfo;
-                        float value=-1.0;
-                        WRN("Valuator: dev=%d, label=%d, value=%f, range=[%f .. %f], name=%s", devid, vci->label, value, vci->min, vci->max, XGetAtomName(_ecore_x_disp, vci->label));
-                     }
-                  }
                   if (dev->use == XIMasterPointer) return;
                   if ((dev->use == XISlavePointer) &&
                       (evd->flags & XIPointerEmulated)) return;
