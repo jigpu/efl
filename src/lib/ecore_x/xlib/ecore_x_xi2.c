@@ -207,6 +207,22 @@ _ecore_x_input_touch_info_get(XIDeviceInfo *dev)
 #endif /* ifdef ECORE_XI2_2 */
 #endif
 
+double getValuator(XIValuatorState valuators, unsigned char axis)
+{
+	double *value = valuators.values;
+
+	if (!(*valuators.mask & (1 << axis)))
+		return 2.0;
+
+	while (axis) {
+		if (*valuators.mask & 1)
+			value++;
+		axis--;
+	}
+
+	return *value;
+}
+
 void
 _ecore_x_input_handler(XEvent *xevent)
 {
@@ -215,6 +231,7 @@ _ecore_x_input_handler(XEvent *xevent)
    /* XIRawEvent *evr = (XIRawEvent *)(xevent->xcookie.data); */
    int devid = evd->deviceid;
    int i;
+   double p = 10.0;
 
    /* No filter for this events */
    switch (xevent->xcookie.evtype)
@@ -261,6 +278,8 @@ _ecore_x_input_handler(XEvent *xevent)
    switch (xevent->xcookie.evtype)
      {
       case XI_Motion:
+        p = getValuator(evd->valuators, 2);
+	INF("XI_Motion event on %d: (%f,%f) and %f", devid, evd->root_x, evd->root_y, p);
         _ecore_mouse_move
           (evd->time,
           0,   // state
@@ -271,7 +290,7 @@ _ecore_x_input_handler(XEvent *xevent)
           evd->root,
           1,   // same_screen
           devid, 1, 1,
-          1.0,   // pressure
+          p,   // pressure
           0.0,   // angle
           evd->event_x, evd->event_y,
           evd->root_x, evd->root_y);
@@ -279,6 +298,8 @@ _ecore_x_input_handler(XEvent *xevent)
 
       case XI_ButtonPress:
         INF("ButtonEvent:multi press time=%u x=%d y=%d devid=%d", (unsigned int)evd->time, (int)evd->event_x, (int)evd->event_y, devid);
+	INF("XI_ButtonPress event on %d: (%f,%f) and %f", devid, evd->root_x, evd->root_y, p);
+        p = getValuator(evd->valuators,2);
         _ecore_mouse_button
           (ECORE_EVENT_MOUSE_BUTTON_DOWN,
           evd->time,
@@ -291,14 +312,16 @@ _ecore_x_input_handler(XEvent *xevent)
           evd->root,
           1,   // same_screen
           devid, 1, 1,
-          1.0,   // pressure
+          p,   // pressure
           0.0,   // angle
           evd->event_x, evd->event_y,
           evd->root_x, evd->root_y);
         break;
 
       case XI_ButtonRelease:
+        p = getValuator(evd->valuators,2);
 		INF("ButtonEvent:multi release time=%u x=%d y=%d devid=%d", (unsigned int)evd->time, (int)evd->event_x, (int)evd->event_y, devid);
+	INF("XI_ButtonRelease event on %d: (%f,%f) and %f", devid, evd->root_x, evd->root_y, p);
         _ecore_mouse_button
           (ECORE_EVENT_MOUSE_BUTTON_UP,
           evd->time,
@@ -311,7 +334,7 @@ _ecore_x_input_handler(XEvent *xevent)
           evd->root,
           1,   // same_screen
           devid, 1, 1,
-          1.0,   // pressure
+          p,   // pressure
           0.0,   // angle
           evd->event_x, evd->event_y,
           evd->root_x, evd->root_y);

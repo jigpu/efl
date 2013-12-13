@@ -183,7 +183,7 @@ _multi_move_cb(void *data EINA_UNUSED, Evas *e EINA_UNUSED, Evas_Object *obj EIN
 {
    Evas_Event_Multi_Move *ev = event_info;
 
-   EINA_LOG_ERR("touch at %f", ev->cur.canvas.xsub);
+   EINA_LOG_ERR("touch (%d) at %f; %f", ev->device, ev->cur.canvas.xsub, ev->pressure);
    _mouse_move_handle(ev->device, ev->cur.canvas.x, ev->cur.canvas.y);
 }
 
