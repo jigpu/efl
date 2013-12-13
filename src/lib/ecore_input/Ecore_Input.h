@@ -204,6 +204,44 @@ extern "C" {
         } multi;
      };
    
+   enum _Ecore_Axis_Name {
+	   UNKNOWN,
+	   X,             /* Position along physical X axis; not window relative */
+	   Y,             /* Position along physical Y axis; not window relative */
+	   PRESSURE,      /* Force applied to tool tip; Range: [0.0, 1.0]. Unit: Unitless */
+	   DISTANCE,      /* Relative distance along physical Z axis; Range: [0.0, 1.0] */
+	   AZIMUTH,       /* Angle of tool about the Z axis from positive X axis; Range: [-PI, PI] radians */
+	   TILT,          /* Angle of tool about plane of sensor from positive Z axis; Range: [0.0, PI] radians */
+	   TWIST,         /* Angle of tool about tool's major axis from tool's "natural" position; Range: [-PI, PI] radians */
+	   TOUCH_WIDTH_MAJOR,   /* Length of contact ellipse along AZIMUTH */
+	   TOUCH_WIDTH_MINOR,   /* Length of contact ellipse perpendicular to AZIMUTH */
+	   TOOL_WIDTH_MAJOR,    /* Length of tool ellipse along AZIMUTH */
+	   TOOL_WIDTH_MINOR     /* Length of tool ellipse perpendicular to AZIMUTH */
+   };
+
+   struct _Ecore_Axis {
+	   enum _Ecore_Axis_Name name;
+	   double value;
+   };
+
+   struct _Ecore_Event_Pointer_Axis
+   {
+	   Ecore_Window window;
+	   Ecore_Window root_window;
+	   Ecore_Window event_window;
+
+	   unsigned int timestamp;
+	   unsigned int modifiers;
+
+	   int          same_screen;
+
+	   int device;
+	   int toolid;
+	   int tooltype;
+
+	   struct _Ecore_Axis data[6];
+   };
+
    struct _Ecore_Event_Mouse_IO
      {
         Ecore_Window     window;
