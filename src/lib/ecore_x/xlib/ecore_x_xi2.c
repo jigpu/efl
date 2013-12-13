@@ -453,8 +453,10 @@ ecore_x_input_multi_select(Ecore_X_Window win)
      {
         XIDeviceInfo *dev = &(_ecore_x_xi2_devs[i]);
 
+        INF("Trying to get multi events for device %d...", dev->deviceid);
         if (dev->use == XIFloatingSlave)
           {
+             INF("... success! (floating slave)");
              XIEventMask eventmask;
              unsigned char mask[4] = { 0 };
 
@@ -470,6 +472,7 @@ ecore_x_input_multi_select(Ecore_X_Window win)
           }
         else if (dev->use == XISlavePointer)
           {
+             INF("... checking slavepointer");
              XIDeviceInfo *atdev = NULL;
              int j;
 
@@ -478,9 +481,10 @@ ecore_x_input_multi_select(Ecore_X_Window win)
                   if (_ecore_x_xi2_devs[j].deviceid == dev->attachment)
                     atdev = &(_ecore_x_xi2_devs[j]);
                }
-             if (((atdev) && (atdev->use != XIMasterPointer)) ||
-                 (!atdev))
+             if (1 /*((atdev) && (atdev->use != XIMasterPointer)) ||
+                 (!atdev)*/)
                {
+                  INF("... success! (slave pointer)");
                   XIEventMask eventmask;
                   unsigned char mask[4] = { 0 };
 
@@ -523,12 +527,14 @@ ecore_x_input_multi_select(Ecore_X_Window win)
 #ifdef ECORE_XI2_2
              else if ((atdev) && (atdev->use == XIMasterPointer))
                {
+                  INF("... checking master pointer");
                   Eina_Inlist *l = _ecore_x_xi2_touch_info_list;
                   Ecore_X_Touch_Device_Info *info;
                   info = _ecore_x_input_touch_info_get(dev);
 
                   if (info)
                     {
+                       INF("... success! (master pointer)");
                        XIEventMask eventmask;
                        unsigned char mask[4] = { 0 };
 
