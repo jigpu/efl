@@ -22,6 +22,7 @@ struct _Ecore_Input_Window
    Ecore_Event_Multi_Move_Cb move_multi;
    Ecore_Event_Multi_Down_Cb down_multi;
    Ecore_Event_Multi_Up_Cb up_multi;
+   Ecore_Event_Axis_Update_Cb axis_update;
    int ignore_event;
 };
 
@@ -46,7 +47,7 @@ struct _Ecore_Input_Last
 };
 
 static int _ecore_event_evas_init_count = 0;
-static Ecore_Event_Handler *ecore_event_evas_handlers[8];
+static Ecore_Event_Handler *ecore_event_evas_handlers[9];
 static Eina_Hash *_window_hash = NULL;
 
 static Eina_List *_last_events = NULL;
@@ -257,7 +258,8 @@ ecore_event_window_register(Ecore_Window id, void *window, Evas *evas,
                             Ecore_Event_Mouse_Move_Cb move_mouse,
                             Ecore_Event_Multi_Move_Cb move_multi,
                             Ecore_Event_Multi_Down_Cb down_multi,
-                            Ecore_Event_Multi_Up_Cb up_multi)
+                            Ecore_Event_Multi_Up_Cb up_multi,
+                            Ecore_Event_Axis_Update_Cb axis_update)
 {
    Ecore_Input_Window *w;
 
@@ -270,6 +272,7 @@ ecore_event_window_register(Ecore_Window id, void *window, Evas *evas,
    w->move_multi = move_multi;
    w->down_multi = down_multi;
    w->up_multi = up_multi;
+   w->axis_update = axis_update;
    w->ignore_event = 0;
 
    eina_hash_add(_window_hash, &id, w);
@@ -454,6 +457,17 @@ ecore_event_evas_mouse_move(void *data EINA_UNUSED, int type EINA_UNUSED, void *
 }
 
 EAPI Eina_Bool
+ecore_event_evas_axis_update(void *data, int type, void *event)
+{
+   Ecore_Event_Axis_Update *e = event;
+   INF("SWEET BEANS! [%d] (%d) [%d: %f], [%d: %f], [%d: %f])", type, e->device,
+         e->data[0].name, e->data[0].value,
+         e->data[1].name, e->data[1].value,
+         e->data[2].name, e->data[2].value);
+   return ECORE_CALLBACK_PASS_ON;
+}
+
+EAPI Eina_Bool
 ecore_event_evas_mouse_button_down(void *data EINA_UNUSED, int type EINA_UNUSED, void *event)
 {
    return _ecore_event_evas_mouse_button((Ecore_Event_Mouse_Button *)event, ECORE_DOWN, EINA_FALSE);
@@ -574,6 +588,9 @@ ecore_event_evas_init(void)
                                                           NULL);
    ecore_event_evas_handlers[7] = ecore_event_handler_add(ECORE_EVENT_MOUSE_OUT,
                                                           ecore_event_evas_mouse_out,
+                                                          NULL);
+   ecore_event_evas_handlers[8] = ecore_event_handler_add(ECORE_EVENT_AXIS_UPDATE,
+                                                          ecore_event_evas_axis_update,
                                                           NULL);
 
    _window_hash = eina_hash_pointer_new(free);

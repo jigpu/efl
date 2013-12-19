@@ -2079,14 +2079,14 @@ EAPI void             evas_object_color_set(Evas_Object *obj, int r, int g, int 
  * @param a Pointer to an integer in which to store the alpha
  *          component of the color.
  *
- * Retrieves the “main” color's RGB component (and alpha channel)
+ * Retrieves the ���main��� color's RGB component (and alpha channel)
  * values, <b>which range from 0 to 255</b>. For the alpha channel,
  * which defines the object's transparency level, 0 means totally
  * transparent, while 255 means opaque. These color values are
  * premultiplied by the alpha value.
  *
- * Usually you’ll use this attribute for text and rectangle objects,
- * where the “main” color is their unique one. If set for objects
+ * Usually you���ll use this attribute for text and rectangle objects,
+ * where the ���main��� color is their unique one. If set for objects
  * which themselves have colors, like the images one, those colors get
  * modulated by this one.
  *
@@ -2308,9 +2308,9 @@ EAPI Evas_Object     *evas_object_below_get(const Evas_Object *obj) EINA_WARN_UN
  * #EVAS_CALLBACK_MOUSE_DOWN, #EVAS_CALLBACK_MOUSE_UP,
  * #EVAS_CALLBACK_MOUSE_MOVE, #EVAS_CALLBACK_MOUSE_WHEEL,
  * #EVAS_CALLBACK_MULTI_DOWN, #EVAS_CALLBACK_MULTI_UP,
- * #EVAS_CALLBACK_MULTI_MOVE, #EVAS_CALLBACK_FREE,
- * #EVAS_CALLBACK_KEY_DOWN, #EVAS_CALLBACK_KEY_UP,
- * #EVAS_CALLBACK_FOCUS_IN, #EVAS_CALLBACK_FOCUS_OUT,
+ * #EVAS_CALLBACK_MULTI_MOVE, #EVAS_CALLBACK_AXIS_UPDATE,
+ * #EVAS_CALLBACK_FREE, #EVAS_CALLBACK_KEY_DOWN,
+ * EVAS_CALLBACK_KEY_UP, #EVAS_CALLBACK_FOCUS_IN, #EVAS_CALLBACK_FOCUS_OUT,
  * #EVAS_CALLBACK_SHOW, #EVAS_CALLBACK_HIDE, #EVAS_CALLBACK_MOVE,
  * #EVAS_CALLBACK_RESIZE, #EVAS_CALLBACK_RESTACK, #EVAS_CALLBACK_DEL,
  * #EVAS_CALLBACK_HOLD, #EVAS_CALLBACK_CHANGED_SIZE_HINTS,
@@ -2381,6 +2381,9 @@ EAPI Evas_Object     *evas_object_below_get(const Evas_Object *obj) EINA_WARN_UN
  *
  * - #EVAS_CALLBACK_MULTI_MOVE: @p event_info is a pointer to an
  *   #Evas_Event_Multi_Move struct
+ *
+ * - #EVAS_CALLBACK_AXIS_UPDATE: @p event_info is a pointer to an
+ *   #Evas_Event_Axis_Update struct
  *
  * - #EVAS_CALLBACK_FREE: @p event_info is @c NULL \n\n
  *   This event is triggered just before Evas is about to free all

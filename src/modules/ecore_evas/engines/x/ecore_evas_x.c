@@ -2312,7 +2312,8 @@ _alpha_do(Ecore_Evas *ee, int alpha)
                                (Ecore_Event_Mouse_Move_Cb)_ecore_evas_mouse_move_process,
                                (Ecore_Event_Multi_Move_Cb)_ecore_evas_mouse_multi_move_process,
                                (Ecore_Event_Multi_Down_Cb)_ecore_evas_mouse_multi_down_process,
-                               (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process);
+                               (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process,
+                               (Ecore_Event_Axis_Update_Cb)_ecore_evas_axis_update_process);
    if (ee->prop.borderless)
      ecore_x_mwm_borderless_set(ee->prop.window, ee->prop.borderless);
    if (ee->visible) ecore_x_window_show(ee->prop.window);
@@ -2460,7 +2461,8 @@ _ecore_evas_x_alpha_set(Ecore_Evas *ee, int alpha)
                                     (Ecore_Event_Mouse_Move_Cb)_ecore_evas_mouse_move_process,
                                     (Ecore_Event_Multi_Move_Cb)_ecore_evas_mouse_multi_move_process,
                                     (Ecore_Event_Multi_Down_Cb)_ecore_evas_mouse_multi_down_process,
-                                    (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process);
+                                    (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process,
+                                    (Ecore_Event_Axis_Update_Cb)_ecore_evas_axis_update_process);
         if (ee->prop.borderless)
           ecore_x_mwm_borderless_set(ee->prop.window, ee->prop.borderless);
         if (ee->visible) ecore_x_window_show(ee->prop.window);
@@ -3617,7 +3619,8 @@ ecore_evas_software_x11_new_internal(const char *disp_name, Ecore_X_Window paren
                                (Ecore_Event_Mouse_Move_Cb)_ecore_evas_mouse_move_process,
                                (Ecore_Event_Multi_Move_Cb)_ecore_evas_mouse_multi_move_process,
                                (Ecore_Event_Multi_Down_Cb)_ecore_evas_mouse_multi_down_process,
-                               (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process);
+                               (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process,
+                               (Ecore_Event_Axis_Update_Cb)_ecore_evas_axis_update_process);
    return ee;
 }
 
@@ -3841,7 +3844,8 @@ ecore_evas_software_x11_pixmap_new_internal(const char *disp_name, Ecore_X_Windo
    /*                             (Ecore_Event_Mouse_Move_Cb)_ecore_evas_mouse_move_process, */
    /*                             (Ecore_Event_Multi_Move_Cb)_ecore_evas_mouse_multi_move_process, */
    /*                             (Ecore_Event_Multi_Down_Cb)_ecore_evas_mouse_multi_down_process, */
-   /*                             (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process); */
+   /*                             (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process, */
+   /*                             (Ecore_Event_Axis_Update_Cb)_ecore_evas_axis_update_process); */
 
    return ee;
 }
@@ -3935,7 +3939,8 @@ _ecore_evas_software_x11_extra_event_window_add(Ecore_Evas *ee, Ecore_X_Window w
                                     (Ecore_Event_Mouse_Move_Cb)_ecore_evas_mouse_move_process,
                                     (Ecore_Event_Multi_Move_Cb)_ecore_evas_mouse_multi_move_process,
                                     (Ecore_Event_Multi_Down_Cb)_ecore_evas_mouse_multi_down_process,
-                                    (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process);
+                                    (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process,
+                                    (Ecore_Event_Axis_Update_Cb)_ecore_evas_axis_update_process);
      }
 }
 #endif
@@ -4066,7 +4071,8 @@ ecore_evas_gl_x11_options_new_internal(const char *disp_name, Ecore_X_Window par
                                (Ecore_Event_Mouse_Move_Cb)_ecore_evas_mouse_move_process,
                                (Ecore_Event_Multi_Move_Cb)_ecore_evas_mouse_multi_move_process,
                                (Ecore_Event_Multi_Down_Cb)_ecore_evas_mouse_multi_down_process,
-                               (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process);
+                               (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process,
+                               (Ecore_Event_Axis_Update_Cb)_ecore_evas_axis_update_process);
 
    return ee;
 }
@@ -4264,7 +4270,8 @@ ecore_evas_gl_x11_pixmap_new_internal(const char *disp_name, Ecore_X_Window pare
    /*                             (Ecore_Event_Mouse_Move_Cb)_ecore_evas_mouse_move_process, */
    /*                             (Ecore_Event_Multi_Move_Cb)_ecore_evas_mouse_multi_move_process, */
    /*                             (Ecore_Event_Multi_Down_Cb)_ecore_evas_mouse_multi_down_process, */
-   /*                             (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process); */
+   /*                             (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process, */
+   /*                             (Ecore_Event_Axis_Update_Cb)_ecore_evas_axis_update_process); */
 
    return ee;
 }

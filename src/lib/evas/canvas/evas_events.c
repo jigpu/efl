@@ -2723,6 +2723,15 @@ evas_event_input_multi_move(Evas *eo_e,
                                                   data));
 }
 
+EAPI void
+evas_event_input_axis_update(Evas *eo_e,
+                           int d, int toolid, int tooltype,
+                           int axisid, double value)
+{
+	// evas_event_input_axis_update(ee->evas, device, toolid, tooltype, axisid, value);
+	// TODO: Implement!
+}
+
 void
 _canvas_event_input_multi_move(Eo *eo_e, void *_pd, va_list *list)
 {
@@ -2744,6 +2753,12 @@ _canvas_event_input_multi_move(Eo *eo_e, void *_pd, va_list *list)
                                           x - e->framespace.x, y - e->framespace.y,
                                           rad, radx, rady,
                                           pres, ang, fx, fy, timestamp, data);
+}
+
+void
+_canvas_event_input_axis_update(Eo *eo_e, void *_pd, va_list *list)
+{
+	// TODO: Implement!
 }
 
 EAPI void
@@ -2781,6 +2796,12 @@ _canvas_event_feed_multi_move(Eo *eo_e, void *_pd, va_list *list)
 
    _canvas_event_feed_multi_move_internal(eo_e, _pd, d, x, y, rad, radx, rady,
                                           pres, ang, fx, fy, timestamp, data);
+}
+
+void
+_canvas_event_feed_axis_update(Eo *eo_e, void *_pd, va_list *list)
+{
+	// TODO: Implement!
 }
 
 EAPI void

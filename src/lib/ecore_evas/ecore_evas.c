@@ -2934,6 +2934,14 @@ _ecore_evas_mouse_multi_up_process(Ecore_Evas *ee, int device,
 }
 
 EAPI void
+_ecore_evas_axis_update_process(Ecore_Evas *ee, int device,
+                                   int toolid, int tooltype,
+                                   int axisid, double value)
+{
+	evas_event_input_axis_update(ee->evas, device, toolid, tooltype, axisid, value);
+}
+
+EAPI void
 _ecore_evas_window_profile_free(Ecore_Evas *ee)
 {
    if (ee->prop.profile.name)
@@ -2991,7 +2999,8 @@ ecore_evas_input_event_register(Ecore_Evas *ee)
                                (Ecore_Event_Mouse_Move_Cb)_ecore_evas_mouse_move_process,
                                (Ecore_Event_Multi_Move_Cb)_ecore_evas_mouse_multi_move_process,
                                (Ecore_Event_Multi_Down_Cb)_ecore_evas_mouse_multi_down_process,
-                               (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process);
+                               (Ecore_Event_Multi_Up_Cb)_ecore_evas_mouse_multi_up_process,
+                               (Ecore_Event_Axis_Update_Cb)_ecore_evas_axis_update_process);
 }
 
 EAPI void

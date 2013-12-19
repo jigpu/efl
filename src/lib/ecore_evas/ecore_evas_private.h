@@ -304,6 +304,9 @@ EAPI void _ecore_evas_mouse_multi_up_process(Ecore_Evas *ee, int device,
                                         double mx, double my,
                                         Evas_Button_Flags flags,
                                         unsigned int timestamp);
+EAPI void _ecore_evas_axis_update_process(Ecore_Evas *ee, int device,
+                                        int toolid, int tooltype,
+                                        int axisid, double value);
 
 EAPI extern Eina_Bool _ecore_evas_app_comp_sync;
 

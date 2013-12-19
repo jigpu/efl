@@ -441,10 +441,12 @@ ecore_x_init(const char *name)
    _ecore_x_event_handlers[AnyXEvent] = _ecore_x_event_handle_any_event;
    _ecore_x_event_handlers[KeyPress] = _ecore_x_event_handle_key_press;
    _ecore_x_event_handlers[KeyRelease] = _ecore_x_event_handle_key_release;
+#if !defined(GenericEvent) || !defined(ECORE_XI2)
    _ecore_x_event_handlers[ButtonPress] = _ecore_x_event_handle_button_press;
    _ecore_x_event_handlers[ButtonRelease] =
      _ecore_x_event_handle_button_release;
    _ecore_x_event_handlers[MotionNotify] = _ecore_x_event_handle_motion_notify;
+#endif
    _ecore_x_event_handlers[EnterNotify] = _ecore_x_event_handle_enter_notify;
    _ecore_x_event_handlers[LeaveNotify] = _ecore_x_event_handle_leave_notify;
    _ecore_x_event_handlers[FocusIn] = _ecore_x_event_handle_focus_in;

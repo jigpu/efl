@@ -25,6 +25,8 @@ EAPI const Eo_Event_Description _EVAS_OBJECT_EVENT_MULTI_UP =
    EO_EVENT_DESCRIPTION("Multi Up", "Mouse-touch Up Event");
 EAPI const Eo_Event_Description _EVAS_OBJECT_EVENT_MULTI_MOVE =
    EO_EVENT_DESCRIPTION("Multi Move", "Multi-touch Move Event");
+EAPI const Eo_Event_Description _EVAS_OBJECT_EVENT_AXIS_UPDATE =
+   EO_EVENT_DESCRIPTION("Axis Update", "Pointer Axis Update Event");
 EAPI const Eo_Event_Description _EVAS_OBJECT_EVENT_FREE =
    EO_EVENT_DESCRIPTION("Free", "Object Being Freed (Called after Del)");
 EAPI const Eo_Event_Description _EVAS_OBJECT_EVENT_KEY_DOWN =
@@ -89,6 +91,7 @@ static const Eo_Event_Description *_legacy_evas_callback_table[EVAS_CALLBACK_LAS
    EVAS_OBJECT_EVENT_MULTI_DOWN,
    EVAS_OBJECT_EVENT_MULTI_UP,
    EVAS_OBJECT_EVENT_MULTI_MOVE,
+   EVAS_OBJECT_EVENT_AXIS_UPDATE,
    EVAS_OBJECT_EVENT_FREE,
    EVAS_OBJECT_EVENT_KEY_DOWN,
    EVAS_OBJECT_EVENT_KEY_UP,
@@ -258,6 +261,7 @@ evas_object_event_callback_call(Evas_Object *eo_obj, Evas_Object_Protected_Data 
             ((type >= EVAS_CALLBACK_MOUSE_DOWN) &&
              (type <= EVAS_CALLBACK_MULTI_MOVE)))
           {
+             //NOTE: This probably needs updating if EVAS_CALLBACK_AXIS_UPDATE can't be added to the middle of its enum...
              return;
           }
      }

@@ -963,6 +963,12 @@ _ecore_evas_ews_cb_multi_move(void *data, Evas *e EINA_UNUSED, Evas_Object *obj 
 }
 
 static void
+_ecore_evas_ews_cb_axis_update(void *data, Evas *e, Evas_Object *obj, void *event_info)
+{
+   return;
+}
+
+static void
 _ecore_evas_ews_cb_free(void *data, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event_info EINA_UNUSED)
 {
    Ecore_Evas *ee = data;
@@ -1183,6 +1189,9 @@ ecore_evas_ews_new(int x, int y, int w, int h)
    evas_object_event_callback_add(ee->engine.ews.image,
                                   EVAS_CALLBACK_MULTI_MOVE,
                                   _ecore_evas_ews_cb_multi_move, ee);
+   evas_object_event_callback_add(ee->engine.ews.image,
+                                  EVAS_CALLBACK_MULTI_MOVE,
+                                  _ecore_evas_ews_cb_axis_update, ee);
    evas_object_event_callback_add(ee->engine.ews.image,
                                   EVAS_CALLBACK_FREE,
                                   _ecore_evas_ews_cb_free, ee);

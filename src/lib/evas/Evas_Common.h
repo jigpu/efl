@@ -62,6 +62,7 @@ typedef enum _Evas_Callback_Type
    EVAS_CALLBACK_MULTI_DOWN, /**< Multi-touch Down Event */
    EVAS_CALLBACK_MULTI_UP, /**< Multi-touch Up Event */
    EVAS_CALLBACK_MULTI_MOVE, /**< Multi-touch Move Event */
+   EVAS_CALLBACK_AXIS_UPDATE, /**< Pointer Axis Update Event */
    EVAS_CALLBACK_FREE, /**< Object Being Freed (Called after Del) */
    EVAS_CALLBACK_KEY_DOWN, /**< Key Press Event */
    EVAS_CALLBACK_KEY_UP, /**< Key Release Event */
@@ -395,6 +396,7 @@ typedef struct _Evas_Event_Mouse_Wheel   Evas_Event_Mouse_Wheel; /**< Event stru
 typedef struct _Evas_Event_Multi_Down    Evas_Event_Multi_Down; /**< Event structure for #EVAS_CALLBACK_MULTI_DOWN event callbacks */
 typedef struct _Evas_Event_Multi_Up      Evas_Event_Multi_Up; /**< Event structure for #EVAS_CALLBACK_MULTI_UP event callbacks */
 typedef struct _Evas_Event_Multi_Move    Evas_Event_Multi_Move; /**< Event structure for #EVAS_CALLBACK_MULTI_MOVE event callbacks */
+typedef struct _Evas_Event_Axis_Update   Evas_Event_Axis_Update; /**< Event structure for #EVAS_CALLBACK_AXIS_UPDATE event callbacks */
 typedef struct _Evas_Event_Key_Down      Evas_Event_Key_Down; /**< Event structure for #EVAS_CALLBACK_KEY_DOWN event callbacks */
 typedef struct _Evas_Event_Key_Up        Evas_Event_Key_Up; /**< Event structure for #EVAS_CALLBACK_KEY_UP event callbacks */
 typedef struct _Evas_Event_Hold          Evas_Event_Hold; /**< Event structure for #EVAS_CALLBACK_HOLD event callbacks */
@@ -735,6 +737,14 @@ struct _Evas_Event_Multi_Move /** Multi button down event */
    unsigned int            timestamp;
    Evas_Event_Flags        event_flags;
    Evas_Device            *dev;
+};
+
+struct _Evas_Event_Axis_Update /** Axis update event */
+{
+	int device;
+	int toolid;
+	int tooltype;
+	int data[6];
 };
 
 struct _Evas_Event_Key_Down /** Key press event */
@@ -2127,7 +2137,7 @@ EAPI void            evas_map_util_3d_rotate(Evas_Map *m, double dx, double dy, 
  * @param cz rotation's center z.
  *
  * @warning Rotations can be done using a unit quaternion. Thus, this
- * function expects a unit quaternion (i.e. qx² + qy² + qz² + qw² == 1).
+ * function expects a unit quaternion (i.e. qx�� + qy�� + qz�� + qw�� == 1).
  * If this is not the case the behavior is undefined.
  *
  * @since 1.8

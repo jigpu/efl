@@ -324,6 +324,14 @@ void _ecore_x_input_shutdown(void);
 void _ecore_x_input_handler(XEvent *xevent);
 /* from sync */
 
+void
+_ecore_x_axis_update(unsigned int timestamp,
+                     int same_screen,
+                     int devid,
+                     int toolid,
+                     int tooltype,
+                     struct _Ecore_Axis valuators[6]);
+
 void _ecore_mouse_move(unsigned int timestamp,
                        unsigned int xmodifiers,
                        int x,
