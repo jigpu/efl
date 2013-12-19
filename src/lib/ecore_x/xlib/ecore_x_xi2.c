@@ -477,117 +477,62 @@ _ecore_x_input_handler(XEvent *xevent)
 }
 
 EAPI Eina_Bool
-ecore_x_input_multi_select(Ecore_X_Window win)
+ecore_x_input_select(Ecore_X_Window win)
 {
 #ifdef ECORE_XI2
    int i;
    Eina_Bool find = EINA_FALSE;
 
    if (!_ecore_x_xi2_devs)
-     return 0;
+      return EINA_FALSE;
 
    LOGFN(__FILE__, __LINE__, __FUNCTION__);
    for (i = 0; i < _ecore_x_xi2_num; i++)
-     {
-        XIDeviceInfo *dev = &(_ecore_x_xi2_devs[i]);
+      {
+         XIDeviceInfo *dev = &(_ecore_x_xi2_devs[i]);
 
-        if (dev->use == XIFloatingSlave)
-          {
-             XIEventMask eventmask;
-             unsigned char mask[4] = { 0 };
+         if (dev->use == XIFloatingSlave || dev->use == XISlavePointer)
+            {
+               XIEventMask eventmask;
+               unsigned char mask[4] = { 0 };
 
-             eventmask.deviceid = dev->deviceid;
-             eventmask.mask_len = sizeof(mask);
-             eventmask.mask = mask;
-             XISetMask(mask, XI_ButtonPress);
-             XISetMask(mask, XI_ButtonRelease);
-             XISetMask(mask, XI_Motion);
-             XISelectEvents(_ecore_x_disp, win, &eventmask, 1);
-             if (_ecore_xlib_sync) ecore_x_sync();
-             find = EINA_TRUE;
-          }
-        else if (dev->use == XISlavePointer)
-          {
-             XIDeviceInfo *atdev = NULL;
-             int j;
+               eventmask.deviceid = dev->deviceid;
+               eventmask.mask_len = sizeof(mask);
+               eventmask.mask = mask;
+               XISetMask(mask, XI_ButtonPress);
+               XISetMask(mask, XI_ButtonRelease);
+               XISetMask(mask, XI_Motion);
 
-             for (j = 0; j < _ecore_x_xi2_num; j++)
-               {
-                  if (_ecore_x_xi2_devs[j].deviceid == dev->attachment)
-                    atdev = &(_ecore_x_xi2_devs[j]);
-               }
-             if (((atdev) && (atdev->use != XIMasterPointer)) ||
-                 (!atdev))
-               {
-                  XIEventMask eventmask;
-                  unsigned char mask[4] = { 0 };
-
-                  eventmask.deviceid = dev->deviceid;
-                  eventmask.mask_len = sizeof(mask);
-                  eventmask.mask = mask;
-                  XISetMask(mask, XI_ButtonPress);
-                  XISetMask(mask, XI_ButtonRelease);
-                  XISetMask(mask, XI_Motion);
 #ifdef ECORE_XI2_2
-                  Eina_Inlist *l = _ecore_x_xi2_touch_info_list;
-                  Ecore_X_Touch_Device_Info *info;
-                  info = _ecore_x_input_touch_info_get(dev);
+               Eina_Inlist *l = _ecore_x_xi2_touch_info_list;
+               Ecore_X_Touch_Device_Info *info;
+               info = _ecore_x_input_touch_info_get(dev);
 
-                  if (info)
-                    {
-                       XISetMask(mask, XI_TouchUpdate);
-                       XISetMask(mask, XI_TouchBegin);
-                       XISetMask(mask, XI_TouchEnd);
+               if (info)
+                  {
+                     XISetMask(mask, XI_TouchUpdate);
+                     XISetMask(mask, XI_TouchBegin);
+                     XISetMask(mask, XI_TouchEnd);
 
-                       l = eina_inlist_append(l, (Eina_Inlist *)info);
-                       _ecore_x_xi2_touch_info_list = l;
-                    }
+                     l = eina_inlist_append(l, (Eina_Inlist *)info);
+                     _ecore_x_xi2_touch_info_list = l;
+                  }
 #else
 # ifdef XI_TouchUpdate
-                  XISetMask(mask, XI_TouchUpdate);
+               XISetMask(mask, XI_TouchUpdate);
 # endif
 # ifdef XI_TouchBegin
-                  XISetMask(mask, XI_TouchBegin);
+               XISetMask(mask, XI_TouchBegin);
 # endif
 # ifdef XI_TouchEnd
-                  XISetMask(mask, XI_TouchEnd);
+               XISetMask(mask, XI_TouchEnd);
 # endif
 #endif /* #ifdef ECORE_XI2_2 */
 
-                  XISelectEvents(_ecore_x_disp, win, &eventmask, 1);
-                  if (_ecore_xlib_sync) ecore_x_sync();
-                  find = EINA_TRUE;
-               }
-#ifdef ECORE_XI2_2
-             else if ((atdev) && (atdev->use == XIMasterPointer))
-               {
-                  Eina_Inlist *l = _ecore_x_xi2_touch_info_list;
-                  Ecore_X_Touch_Device_Info *info;
-                  info = _ecore_x_input_touch_info_get(dev);
-
-                  if (info)
-                    {
-                       XIEventMask eventmask;
-                       unsigned char mask[4] = { 0 };
-
-                       eventmask.deviceid = dev->deviceid;
-                       eventmask.mask_len = sizeof(mask);
-                       eventmask.mask = mask;
-
-                       XISetMask(mask, XI_TouchUpdate);
-                       XISetMask(mask, XI_TouchBegin);
-                       XISetMask(mask, XI_TouchEnd);
-                       XISelectEvents(_ecore_x_disp, win, &eventmask, 1);
-                       if (_ecore_xlib_sync) ecore_x_sync();
-
-                       l = eina_inlist_append(l, (Eina_Inlist *)info);
-                       _ecore_x_xi2_touch_info_list = l;
-
-                       find = EINA_TRUE;
-                    }
-               }
-#endif /* #ifdef ECORE_XI2_2 */
-          }
+               XISelectEvents(_ecore_x_disp, win, &eventmask, 1);
+               if (_ecore_xlib_sync) ecore_x_sync();
+               find = EINA_TRUE;
+            }
      }
 
    return find;
