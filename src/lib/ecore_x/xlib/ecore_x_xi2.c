@@ -207,6 +207,22 @@ _ecore_x_input_touch_info_get(XIDeviceInfo *dev)
 #endif /* ifdef ECORE_XI2_2 */
 #endif
 
+double getValuator(XIValuatorState valuators, unsigned char axis)
+{
+   double *value = valuators.values;
+
+   if (!(*valuators.mask & (1 << axis)))
+      return 2.0;
+
+   while (axis) {
+      if (*valuators.mask & 1)
+         value++;
+      axis--;
+   }
+
+   return *value;
+}
+
 void
 _ecore_x_input_raw_handler(XEvent *xevent)
 {
@@ -416,6 +432,36 @@ _ecore_x_input_multi_handler(XEvent *xevent)
 #endif /* ifdef ECORE_XI2 */
 }
 
+void
+_ecore_x_input_axis_handler(XEvent *xevent)
+{
+#ifdef ECORE_XI2
+   if (xevent->type != GenericEvent) return;
+
+   XIDeviceEvent *evd = (XIDeviceEvent *)(xevent->xcookie.data);
+   int devid = evd->deviceid;
+   int i;
+
+   struct _Ecore_Axis *axis = calloc(3, sizeof(struct _Ecore_Axis));
+   if (!axis)
+      return;
+
+   axis[0].label = X;
+   axis[0].value = getValuator(evd->valuators, 0);
+
+   axis[1].label = Y;
+   axis[1].value = getValuator(evd->valuators, 1);
+
+   axis[2].label = PRESSURE;
+   axis[2].value = getValuator(evd->valuators, 2);
+
+   _ecore_x_axis_update(evd->time,
+                        devid,
+                        evd->detail,
+                        3,
+                        axis);
+}
+
 XIDeviceInfo*
 _ecore_x_input_device_lookup(int deviceid)
 {
@@ -467,6 +513,9 @@ _ecore_x_input_handler(XEvent *xevent)
             _ecore_x_input_multi_handler(xevent);
          else if (dev->use == XIFloatingSlave)
             _ecore_x_input_mouse_handler(xevent);
+
+         if (dev->use != XIMasterPointer)
+            _ecore_x_input_axis_handler(xevent);
          break;
 
       default:

@@ -270,6 +270,48 @@ _ecore_mouse_move(unsigned int timestamp,
 }
 
 static void
+_ecore_x_event_free_axis_update_event(void *data, void *ev)
+{
+   Ecore_Event_Axis_Update *e = ev;
+   if (data)
+     {
+         free(e->axis);
+     }
+   free(e);
+}
+
+void
+_ecore_x_axis_update(unsigned int timestamp,
+                     int devid,
+                     int toolid,
+                     int naxis,
+                     struct _Ecore_Axis *axis)
+{
+   Ecore_Event_Axis_Update *e;
+
+   e = malloc(sizeof(Ecore_Event_Axis_Update));
+   if (!e)
+    return;
+
+   e->timestamp = timestamp;
+
+   e->device = devid;
+   e->toolid = toolid;
+
+   e->naxis = naxis;
+   e->axis = axis;
+
+   INF("Axis update [%d]: (%d) [%d: %f], [%d: %f], [%d: %f]", ECORE_EVENT_AXIS_UPDATE, e->device,
+         e->axis[0].label, e->axis[0].value,
+         e->axis[1].label, e->axis[1].value,
+         e->axis[2].label, e->axis[2].value);
+
+   ecore_event_add(ECORE_EVENT_AXIS_UPDATE, e, NULL, NULL);
+
+   _ecore_x_event_last_time = timestamp;
+}
+
+static void
 _ecore_key_press(int event,
                  XKeyEvent *xevent)
 {
