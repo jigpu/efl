@@ -544,6 +544,7 @@ ecore_x_input_select(Ecore_X_Window win)
 EAPI Eina_Bool
 ecore_x_input_raw_select(Ecore_X_Window win)
 {
+#ifdef LOLWTF
 #ifdef ECORE_XI2
    XIEventMask emask;
    unsigned char mask[4] = { 0 };
@@ -569,6 +570,9 @@ ecore_x_input_raw_select(Ecore_X_Window win)
    if (_ecore_xlib_sync) ecore_x_sync();
 
    return EINA_TRUE;
+#else
+   return EINA_FALSE;
+#endif
 #else
    return EINA_FALSE;
 #endif

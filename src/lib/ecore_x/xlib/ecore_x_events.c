@@ -725,6 +725,7 @@ _ecore_x_event_handle_motion_notify(XEvent *xevent)
         _ecore_x_last_event_mouse_move_event = NULL;
      }
  */
+   INF("Got event (%d, %d)", xevent->xmotion.x, xevent->xmotion.y);
    _ecore_mouse_move(xevent->xmotion.time, xevent->xmotion.state,
                      xevent->xmotion.x, xevent->xmotion.y,
                      xevent->xmotion.x_root, xevent->xmotion.y_root,
