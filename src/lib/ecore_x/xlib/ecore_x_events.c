@@ -564,6 +564,163 @@ _ecore_x_event_handle_key_release(XEvent *xevent)
 }
 
 void
+_ecore_x_event_send_mousewheel(XEvent *xevent)
+{
+   int i;
+   Ecore_Event_Mouse_Wheel *e;
+
+   e = malloc(sizeof(Ecore_Event_Mouse_Wheel));
+   if (!e)
+    return;
+
+   e->timestamp = xevent->xbutton.time;
+   e->modifiers = _ecore_x_event_modifiers(xevent->xbutton.state);
+   switch (xevent->xbutton.button)
+    {
+     case 4: e->direction = 0; e->z = -1; break;
+
+     case 5: e->direction = 0; e->z = 1; break;
+
+     case 6: e->direction = 1; e->z = -1; break;
+
+     case 7: e->direction = 1; e->z = 1; break;
+
+     default: e->direction = 0; e->z = 0; break;
+    }
+
+   e->x = xevent->xbutton.x;
+   e->y = xevent->xbutton.y;
+   e->root.x = xevent->xbutton.x_root;
+   e->root.y = xevent->xbutton.y_root;
+
+   if (xevent->xbutton.subwindow)
+    e->window = xevent->xbutton.subwindow;
+   else
+    e->window = xevent->xbutton.window;
+
+   e->event_window = xevent->xbutton.window;
+   e->same_screen = xevent->xbutton.same_screen;
+   e->root_window = xevent->xbutton.root;
+
+   _ecore_x_event_last_time = e->timestamp;
+   _ecore_x_event_last_win = e->window;
+   _ecore_x_event_last_root_x = xevent->xbutton.x_root;
+   _ecore_x_event_last_root_y = xevent->xbutton.y_root;
+   ecore_event_add(ECORE_EVENT_MOUSE_WHEEL, e, NULL, NULL);
+
+   for (i = 0; i < _ecore_window_grabs_num; i++)
+    {
+       if ((_ecore_window_grabs[i] == xevent->xbutton.window) ||
+           (_ecore_window_grabs[i] == xevent->xbutton.subwindow))
+         {
+            Eina_Bool replay = EINA_FALSE;
+
+            if (_ecore_window_grab_replay_func)
+              replay = _ecore_window_grab_replay_func(
+                  _ecore_window_grab_replay_data,
+                  ECORE_EVENT_MOUSE_WHEEL,
+                  e);
+
+            if (replay)
+              XAllowEvents(xevent->xbutton.display,
+                           ReplayPointer, xevent->xbutton.time);
+            else
+              XAllowEvents(xevent->xbutton.display,
+                           AsyncPointer, xevent->xbutton.time);
+
+            break;
+         }
+    }
+}
+
+void
+_ecore_x_event_send_motion(XEvent *xevent)
+{
+#define _SEND_MOVE_MOUSE(e) \
+(_ecore_mouse_move((e).time, (e).state, (e).x, (e).y, (e).x_root, (e).y_root, \
+                   (e).window, ((e).subwindow ? (e).subwindow : (e).window), \
+                   (e).root, (e).same_screen, 0, 1, 1, 1.0, 0.0, \
+                   (e).x, (e).y, (e).x_root, (e).y_root))
+
+   if (xevent->type == ButtonPress || xevent->type == ButtonRelease)
+      {
+         MOUSE_MOVE(xevent->xbutton);
+      }
+   else if (xevent->type == MotionNotify)
+      {
+         MOUSE_MOVE(xevent->xmotion);
+      }
+   else if (xevent->type == EnterNotify || xevent->type == LeaveNotify)
+      {
+         MOUSE_MOVE(xevent->xcrossing);
+      }
+
+#undef _SEND_MOUSE_MOVE
+}
+
+void
+_ecore_x_event_send_button(XEvent *xevent)
+{
+   Ecore_Event_Mouse_Button *e;
+   int event_window;
+   int window;
+   int i;
+   int action = xevent->type == ButtonPress ? ECORE_EVENT_MOUSE_BUTTON_DOWN : ECORE_EVENT_MOUSE_BUTTON_UP;
+
+   window =
+    (xevent->xbutton.subwindow ? xevent->xbutton.subwindow : xevent->
+     xbutton.window);
+   event_window = xevent->xbutton.window;
+
+   e = _ecore_mouse_button(action,
+                          xevent->xbutton.time,
+                          xevent->xbutton.state,
+                          xevent->xbutton.button,
+                          xevent->xbutton.x,
+                          xevent->xbutton.y,
+                          xevent->xbutton.x_root,
+                          xevent->xbutton.y_root,
+                          event_window,
+                          window,
+                          xevent->xbutton.root,
+                          xevent->xbutton.same_screen,
+                          0,
+                          1,
+                          1,
+                          1.0, // pressure
+                          0.0, // angle
+                          xevent->xbutton.x,
+                          xevent->xbutton.y,
+                          xevent->xbutton.x_root,
+                          xevent->xbutton.y_root);
+
+   if (e && action == ECORE_EVENT_MOUSE_BUTTON_DOWN)
+    for (i = 0; i < _ecore_window_grabs_num; i++)
+      {
+         if ((_ecore_window_grabs[i] == xevent->xbutton.window) ||
+             (_ecore_window_grabs[i] == xevent->xbutton.subwindow))
+           {
+              Eina_Bool replay = EINA_FALSE;
+
+              if (_ecore_window_grab_replay_func)
+                replay = _ecore_window_grab_replay_func(
+                    _ecore_window_grab_replay_data,
+                    ECORE_EVENT_MOUSE_BUTTON_DOWN,
+                    e);
+
+              if (replay)
+                XAllowEvents(xevent->xbutton.display,
+                             ReplayPointer, xevent->xbutton.time);
+              else
+                XAllowEvents(xevent->xbutton.display,
+                             AsyncPointer, xevent->xbutton.time);
+
+              break;
+           }
+      }
+}
+
+void
 _ecore_x_event_handle_button_press(XEvent *xevent)
 {
    int i;
@@ -573,146 +730,12 @@ _ecore_x_event_handle_button_press(XEvent *xevent)
    _ecore_x_last_event_mouse_move = 0;
    if ((xevent->xbutton.button > 3) && (xevent->xbutton.button < 8))
      {
-        Ecore_Event_Mouse_Wheel *e;
-
-        e = malloc(sizeof(Ecore_Event_Mouse_Wheel));
-        if (!e)
-          return;
-
-        e->timestamp = xevent->xbutton.time;
-        e->modifiers = _ecore_x_event_modifiers(xevent->xbutton.state);
-        switch (xevent->xbutton.button)
-          {
-           case 4: e->direction = 0; e->z = -1; break;
-
-           case 5: e->direction = 0; e->z = 1; break;
-
-           case 6: e->direction = 1; e->z = -1; break;
-
-           case 7: e->direction = 1; e->z = 1; break;
-
-           default: e->direction = 0; e->z = 0; break;
-          }
-
-        e->x = xevent->xbutton.x;
-        e->y = xevent->xbutton.y;
-        e->root.x = xevent->xbutton.x_root;
-        e->root.y = xevent->xbutton.y_root;
-
-        if (xevent->xbutton.subwindow)
-          e->window = xevent->xbutton.subwindow;
-        else
-          e->window = xevent->xbutton.window;
-
-        e->event_window = xevent->xbutton.window;
-        e->same_screen = xevent->xbutton.same_screen;
-        e->root_window = xevent->xbutton.root;
-
-        _ecore_x_event_last_time = e->timestamp;
-        _ecore_x_event_last_win = e->window;
-        _ecore_x_event_last_root_x = xevent->xbutton.x_root;
-        _ecore_x_event_last_root_y = xevent->xbutton.y_root;
-        ecore_event_add(ECORE_EVENT_MOUSE_WHEEL, e, NULL, NULL);
-
-        for (i = 0; i < _ecore_window_grabs_num; i++)
-          {
-             if ((_ecore_window_grabs[i] == xevent->xbutton.window) ||
-                 (_ecore_window_grabs[i] == xevent->xbutton.subwindow))
-               {
-                  Eina_Bool replay = EINA_FALSE;
-
-                  if (_ecore_window_grab_replay_func)
-                    replay = _ecore_window_grab_replay_func(
-                        _ecore_window_grab_replay_data,
-                        ECORE_EVENT_MOUSE_WHEEL,
-                        e);
-
-                  if (replay)
-                    XAllowEvents(xevent->xbutton.display,
-                                 ReplayPointer, xevent->xbutton.time);
-                  else
-                    XAllowEvents(xevent->xbutton.display,
-                                 AsyncPointer, xevent->xbutton.time);
-
-                  break;
-               }
-          }
+        _ecore_x_event_send_mousewheel(xevent);
      }
    else
      {
-        {
-           _ecore_mouse_move(xevent->xbutton.time, xevent->xbutton.state,
-                             xevent->xbutton.x, xevent->xbutton.y,
-                             xevent->xbutton.x_root, xevent->xbutton.y_root,
-                             xevent->xbutton.window,
-                             (xevent->xbutton.subwindow ? xevent->xbutton.
-                              subwindow : xevent->xbutton.window),
-                             xevent->xbutton.root,
-                             xevent->xbutton.same_screen,
-                             0, 1, 1,
-                             1.0, // pressure
-                             0.0, // angle
-                             xevent->xbutton.x, xevent->xbutton.y,
-                             xevent->xbutton.x_root, xevent->xbutton.y_root);
-        }
-        {
-           Ecore_Event_Mouse_Button *e;
-           int event_window;
-           int window;
-
-           window =
-             (xevent->xbutton.subwindow ? xevent->xbutton.subwindow : xevent->
-              xbutton.window);
-           event_window = xevent->xbutton.window;
-
-           e = _ecore_mouse_button(ECORE_EVENT_MOUSE_BUTTON_DOWN,
-                                   xevent->xbutton.time,
-                                   xevent->xbutton.state,
-                                   xevent->xbutton.button,
-                                   xevent->xbutton.x,
-                                   xevent->xbutton.y,
-                                   xevent->xbutton.x_root,
-                                   xevent->xbutton.y_root,
-                                   event_window,
-                                   window,
-                                   xevent->xbutton.root,
-                                   xevent->xbutton.same_screen,
-                                   0,
-                                   1,
-                                   1,
-                                   1.0,
-// pressure
-                                   0.0,
-// angle
-                                   xevent->xbutton.x,
-                                   xevent->xbutton.y,
-                                   xevent->xbutton.x_root,
-                                   xevent->xbutton.y_root);
-           if (e)
-             for (i = 0; i < _ecore_window_grabs_num; i++)
-               {
-                  if ((_ecore_window_grabs[i] == xevent->xbutton.window) ||
-                      (_ecore_window_grabs[i] == xevent->xbutton.subwindow))
-                    {
-                       Eina_Bool replay = EINA_FALSE;
-
-                       if (_ecore_window_grab_replay_func)
-                         replay = _ecore_window_grab_replay_func(
-                             _ecore_window_grab_replay_data,
-                             ECORE_EVENT_MOUSE_BUTTON_DOWN,
-                             e);
-
-                       if (replay)
-                         XAllowEvents(xevent->xbutton.display,
-                                      ReplayPointer, xevent->xbutton.time);
-                       else
-                         XAllowEvents(xevent->xbutton.display,
-                                      AsyncPointer, xevent->xbutton.time);
-
-                       break;
-                    }
-               }
-        }
+        _ecore_x_event_send_motion(xevent);
+        _ecore_x_event_send_button(xevent);
      }
 }
 
@@ -724,35 +747,8 @@ _ecore_x_event_handle_button_release(XEvent *xevent)
    /* filter out wheel buttons */
    if ((xevent->xbutton.button <= 3) || (xevent->xbutton.button > 7))
      {
-        _ecore_mouse_move(xevent->xbutton.time, xevent->xbutton.state,
-                          xevent->xbutton.x, xevent->xbutton.y,
-                          xevent->xbutton.x_root, xevent->xbutton.y_root,
-                          xevent->xbutton.window,
-                          (xevent->xbutton.subwindow ? xevent->xbutton.
-                           subwindow : xevent->xbutton.window),
-                          xevent->xbutton.root,
-                          xevent->xbutton.same_screen,
-                          0, 1, 1,
-                          1.0, // pressure
-                          0.0, // angle
-                          xevent->xbutton.x, xevent->xbutton.y,
-                          xevent->xbutton.x_root, xevent->xbutton.y_root);
-
-        _ecore_mouse_button(ECORE_EVENT_MOUSE_BUTTON_UP,
-                            xevent->xbutton.time, xevent->xbutton.state,
-                            xevent->xbutton.button,
-                            xevent->xbutton.x, xevent->xbutton.y,
-                            xevent->xbutton.x_root, xevent->xbutton.y_root,
-                            xevent->xbutton.window,
-                            (xevent->xbutton.subwindow ? xevent->xbutton.
-                             subwindow : xevent->xbutton.window),
-                            xevent->xbutton.root,
-                            xevent->xbutton.same_screen,
-                            0, 1, 1,
-                            1.0, // pressure
-                            0.0, // angle
-                            xevent->xbutton.x, xevent->xbutton.y,
-                            xevent->xbutton.x_root, xevent->xbutton.y_root);
+         _ecore_event_send_motion(xevent);
+         _ecore_event_send_button(xevent);
      }
 }
 
@@ -768,19 +764,7 @@ _ecore_x_event_handle_motion_notify(XEvent *xevent)
      }
  */
    INF("Got event (%d, %d)", xevent->xmotion.x, xevent->xmotion.y);
-   _ecore_mouse_move(xevent->xmotion.time, xevent->xmotion.state,
-                     xevent->xmotion.x, xevent->xmotion.y,
-                     xevent->xmotion.x_root, xevent->xmotion.y_root,
-                     xevent->xmotion.window,
-                     (xevent->xmotion.subwindow ? xevent->xmotion.subwindow :
-                      xevent->xmotion.window),
-                     xevent->xmotion.root,
-                     xevent->xmotion.same_screen,
-                     0, 1, 1,
-                     1.0,   // pressure
-                     0.0,   // angle
-                     xevent->xmotion.x, xevent->xmotion.y,
-                     xevent->xmotion.x_root, xevent->xmotion.y_root);
+   ecore_event_send_motion(xevent);
 
    _ecore_x_last_event_mouse_move = 1;
 
@@ -794,21 +778,7 @@ void
 _ecore_x_event_handle_enter_notify(XEvent *xevent)
 {
    _ecore_x_last_event_mouse_move = 0;
-   {
-      _ecore_mouse_move(xevent->xcrossing.time, xevent->xcrossing.state,
-                        xevent->xcrossing.x, xevent->xcrossing.y,
-                        xevent->xcrossing.x_root, xevent->xcrossing.y_root,
-                        xevent->xcrossing.window,
-                        (xevent->xcrossing.subwindow ? xevent->xcrossing.
-                         subwindow : xevent->xcrossing.window),
-                        xevent->xcrossing.root,
-                        xevent->xcrossing.same_screen,
-                        0, 1, 1,
-                        1.0, // pressure
-                        0.0, // angle
-                        xevent->xcrossing.x, xevent->xcrossing.y,
-                        xevent->xcrossing.x_root, xevent->xcrossing.y_root);
-   }
+   _ecore_x_event_send_motion(xevent);
    {
       Ecore_X_Event_Mouse_In *e;
 
@@ -858,21 +828,8 @@ void
 _ecore_x_event_handle_leave_notify(XEvent *xevent)
 {
    _ecore_x_last_event_mouse_move = 0;
-   {
-      _ecore_mouse_move(xevent->xcrossing.time, xevent->xcrossing.state,
-                        xevent->xcrossing.x, xevent->xcrossing.y,
-                        xevent->xcrossing.x_root, xevent->xcrossing.y_root,
-                        xevent->xcrossing.window,
-                        (xevent->xcrossing.subwindow ? xevent->xcrossing.
-                         subwindow : xevent->xcrossing.window),
-                        xevent->xcrossing.root,
-                        xevent->xcrossing.same_screen,
-                        0, 1, 1,
-                        1.0, // pressure
-                        0.0, // angle
-                        xevent->xcrossing.x, xevent->xcrossing.y,
-                        xevent->xcrossing.x_root, xevent->xcrossing.y_root);
-   }
+   _ecore_x_event_send_motion(xevent);
+
    {
       Ecore_X_Event_Mouse_Out *e;
 
