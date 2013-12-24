@@ -202,6 +202,19 @@ _multi_up_cb(void *data EINA_UNUSED, Evas *e EINA_UNUSED, Evas_Object *obj EINA_
    _mouse_up_handle(ev->device, ev->cur.canvas.x, ev->cur.canvas.y);
 }
 
+static void
+_axis_update_cb(void *data EINA_UNUSED, Evas *e EINA_UNUSED, Evas_Object *obj EINA_UNUSED, void *event_info)
+{
+   int i;
+   Evas_Event_Axis_Update *ev = event_info;
+
+   printf("Axis update on dev %d, %d axes...\n", ev->device, ev->naxis);
+   for (i = 0; i < ev->naxis; i++)
+     {
+        printf("   %d: %f\n", ev->axis[i].label, ev->axis[i].value);
+     }
+}
+
 int
 main(void)
 {
@@ -241,6 +254,8 @@ main(void)
 
    evas_object_event_callback_add(d.bg, EVAS_CALLBACK_MULTI_MOVE, _multi_move_cb, &d);
    evas_object_event_callback_add(d.bg, EVAS_CALLBACK_MOUSE_MOVE, _mouse_move_cb, &d);
+
+   evas_object_event_callback_add(d.bg, EVAS_CALLBACK_AXIS_UPDATE, _axis_update_cb, &d);
 
    evas_object_focus_set(d.bg, EINA_TRUE); /* so we get input events */
 
