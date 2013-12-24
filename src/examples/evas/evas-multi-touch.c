@@ -20,7 +20,7 @@
 #define ALPHA_END 192
 #define ALPHA_MOVE 255
 
-#define RECT_SIZE 50
+int RECT_SIZE = 50;
 
 struct test_data
 {
@@ -95,6 +95,7 @@ static void
 _touch_move(Touch_Point *tp, int x, int y)
 {
    evas_object_move(tp->move, x - (RECT_SIZE / 2), y - (RECT_SIZE / 2));
+   evas_object_resize(tp->move, RECT_SIZE, RECT_SIZE);
 }
 
 static void
@@ -212,6 +213,8 @@ _axis_update_cb(void *data EINA_UNUSED, Evas *e EINA_UNUSED, Evas_Object *obj EI
    for (i = 0; i < ev->naxis; i++)
      {
         printf("   %d: %f\n", ev->axis[i].label, ev->axis[i].value);
+        if (ev->axis[i].label == EVAS_AXIS_LABEL_PRESSURE)
+           RECT_SIZE=50 * ev->axis[i].value;
      }
 }
 
