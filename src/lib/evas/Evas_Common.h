@@ -98,6 +98,8 @@ typedef enum _Evas_Callback_Type
 
    EVAS_CALLBACK_IMAGE_RESIZE, /**< Image size is changed @since 1.8 */
    EVAS_CALLBACK_DEVICE_CHANGED, /**< Devices added, removed or changed on canvas @since 1.8 */
+
+   EVAS_CALLBACK_AXIS_UPDATE, /**< Input device changed value on some axis @since 1.9 */
    EVAS_CALLBACK_LAST /**< kept as last element/sentinel -- not really an event */
 } Evas_Callback_Type; /**< The types of events triggering a callback */
 
@@ -781,6 +783,38 @@ struct _Evas_Event_Hold /** Hold change event */
    Evas_Event_Flags event_flags;
    Evas_Device     *dev;
 };
+
+enum _Evas_Axis_Label {
+        EVAS_AXIS_LABEL_UNKNOWN,       /* Axis containing unknown (or not yet representable) data */
+        EVAS_AXIS_LABEL_X,             /* Position along physical X axis; not window relative */
+        EVAS_AXIS_LABEL_Y,             /* Position along physical Y axis; not window relative */
+        EVAS_AXIS_LABEL_PRESSURE,      /* Force applied to tool tip; Range: [0.0, 1.0]. Unit: Unitless */
+        EVAS_AXIS_LABEL_DISTANCE,      /* Relative distance along physical Z axis; Range: [0.0, 1.0] */
+        EVAS_AXIS_LABEL_AZIMUTH,       /* Angle of tool about the Z axis from positive X axis; Range: [-PI, PI] radians */
+        EVAS_AXIS_LABEL_TILT,          /* Angle of tool about plane of sensor from positive Z axis; Range: [0.0, PI] radians */
+        EVAS_AXIS_LABEL_TWIST,         /* Angle of tool about tool's major axis from tool's "natural" position; Range: [-PI, PI] radians */
+        EVAS_AXIS_LABEL_TOUCH_WIDTH_MAJOR,   /* Length of contact ellipse along AZIMUTH */
+        EVAS_AXIS_LABEL_TOUCH_WIDTH_MINOR,   /* Length of contact ellipse perpendicular to AZIMUTH */
+        EVAS_AXIS_LABEL_TOOL_WIDTH_MAJOR,    /* Length of tool ellipse along AZIMUTH */
+        EVAS_AXIS_LABEL_TOOL_WIDTH_MINOR     /* Length of tool ellipse perpendicular to AZIMUTH */
+};
+
+struct _Evas_Axis {
+        enum _Evas_Axis_Label label;
+        double value;
+};
+
+struct _Evas_Event_Axis_Update
+{
+        unsigned int timestamp;
+        int device;
+        int toolid;
+
+        int naxis;
+        struct _Evas_Axis *axis;
+};
+
+typedef struct _Evas_Event_Axis_Update Evas_Event_Axis_Update;
 
 /**
  * How the mouse pointer should be handled by Evas.

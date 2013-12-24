@@ -258,6 +258,7 @@ enum
    EVAS_CANVAS_SUB_ID_SMART_OBJECTS_CALCULATE_COUNT_GET,
    EVAS_CANVAS_SUB_ID_RENDER_ASYNC,
    EVAS_CANVAS_SUB_ID_TREE_OBJECTS_AT_XY_GET,
+   EVAS_CANVAS_SUB_ID_EVENT_FEED_AXIS_UPDATE,
    EVAS_CANVAS_SUB_ID_LAST
 };
 
@@ -1175,6 +1176,22 @@ enum
  * @see evas_tree_objects_at_xy_get
  */
 #define evas_canvas_tree_objects_at_xy_get(stop, x, y, ret) EVAS_CANVAS_ID(EVAS_CANVAS_SUB_ID_TREE_OBJECTS_AT_XY_GET), EO_TYPECHECK(Evas_Object *, stop), EO_TYPECHECK(int, x), EO_TYPECHECK(int, y), EO_TYPECHECK(Eina_List **, ret)
+
+/**
+ * @def evas_canvas_event_feed_axis_update
+ * @since 1.8
+ *
+ * No description supplied by the EAPI.
+ *
+ * @param[in] timestamp
+ * @param[in] device
+ * @param[in] toolid
+ * @param[in] naxis
+ * @param[in] axis
+ *
+ * @see evas_event_feed_axis_update
+ */
+#define evas_canvas_event_feed_axis_update(timestamp, device, toolid, naxis, axis) EVAS_CANVAS_ID(EVAS_CANVAS_SUB_ID_EVENT_FEED_AXIS_UPDATE), EO_TYPECHECK(unsigned int, timestamp), EO_TYPECHECK(int, device), EO_TYPECHECK(int, toolid), EO_TYPECHECK(int, naxis), EO_TYPECHECK(const struct _Evas_Axis *, axis)
 
 /**
  * @}

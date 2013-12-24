@@ -3063,6 +3063,63 @@ _canvas_event_feed_hold(Eo *eo_e, void *_pd, va_list *list)
 }
 
 EAPI void
+evas_event_feed_axis_update(Evas *eo_e, unsigned int timestamp, int device, int toolid, int naxis, const struct _Evas_Axis *axis)
+{
+   MAGIC_CHECK(eo_e, Evas, MAGIC_EVAS);
+   return;
+   MAGIC_CHECK_END();
+
+   eo_do(eo_e, evas_canvas_event_feed_axis_update(timestamp, device, toolid, naxis, axis));
+}
+
+void
+_canvas_event_feed_axis_update(Eo *eo_e, void *_pd, va_list *list)
+{
+   unsigned int timestamp = va_arg(*list, unsigned int);
+   int device = va_arg(*list, int);
+   int toolid = va_arg(*list, int);
+   int naxis = va_arg(*list, int);
+   const struct _Evas_Axis *axis = va_arg(*list, const struct _Evas_Axis*);
+
+   Evas_Public_Data *e = _pd;
+   Eina_List *l, *copy;
+   Evas_Event_Axis_Update ev;
+   Evas_Object *eo_obj;
+   int event_id = 0;
+
+   if (e->is_frozen) return;
+   e->last_timestamp = timestamp;
+
+   _evas_object_event_new();
+
+   event_id = _evas_event_counter;
+   ev.timestamp = timestamp;
+   ev.device = device;
+   ev.toolid = toolid;
+   ev.naxis = naxis;
+   ev.axis = axis;
+
+   _evas_walk(e);
+   copy = evas_event_list_copy(e->pointer.object.in);
+
+   EINA_LIST_FOREACH(copy, l, eo_obj)
+     {
+        Evas_Object_Protected_Data *obj = eo_data_scope_get(eo_obj, EVAS_OBJ_CLASS);
+        if (!evas_event_freezes_through(eo_obj, obj))
+          {
+             evas_object_event_callback_call(eo_obj, obj,
+                                             EVAS_CALLBACK_AXIS_UPDATE, &ev,
+                                             event_id);
+             if (e->delete_me || e->is_frozen) break;
+          }
+     }
+   eina_list_free(copy);
+   _evas_post_event_callback_call(eo_e, e);
+
+   _evas_unwalk(e);
+}
+
+EAPI void
 evas_object_freeze_events_set(Evas_Object *eo_obj, Eina_Bool freeze)
 {
    MAGIC_CHECK(eo_obj, Evas_Object, MAGIC_OBJ);
@@ -3353,6 +3410,12 @@ _canvas_event_refeed_event(Eo *eo_e, void *_pd EINA_UNUSED, va_list *list)
           {
              Evas_Event_Key_Up *ev = event_copy;
              evas_event_feed_key_up(eo_e, ev->keyname, ev->key, ev->string, ev->compose, ev->timestamp, ev->data);
+             break;
+          }
+      case EVAS_CALLBACK_AXIS_UPDATE:
+          {
+             Evas_Event_Axis_Update *ev = event_copy;
+             evas_event_feed_axis_update(eo_e, ev->timestamp, ev->device, ev->toolid, ev->naxis, ev->axis);
              break;
           }
       default: /* All non-input events are not handeled */

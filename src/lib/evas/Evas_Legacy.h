@@ -1258,6 +1258,21 @@ EAPI void evas_event_feed_key_up(Evas *e, const char *keyname, const char *key, 
 EAPI void evas_event_feed_hold(Evas *e, int hold, unsigned int timestamp, const void *data) EINA_ARG_NONNULL(1);
 
 /**
+ * Axis update event feed.
+ *
+ * @param e The given canvas pointer.
+ * @param timestamp
+ * @param device
+ * @param tooltype
+ * @param naxis
+ * @param axis
+ *
+ * Lorem ipsum dolor sit amet...
+ *
+ */
+EAPI void evas_event_feed_axis_update(Evas *e, unsigned int timestamp, int device, int tooltype, int naxis, const struct _Evas_Axis *axis) EINA_ARG_NONNULL(1);
+
+/**
  * Re feed event.
  *
  * @param e The given canvas pointer.
