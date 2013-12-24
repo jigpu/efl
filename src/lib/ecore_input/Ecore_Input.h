@@ -47,6 +47,7 @@ extern "C" {
    EAPI extern int ECORE_EVENT_MOUSE_WHEEL;
    EAPI extern int ECORE_EVENT_MOUSE_IN;
    EAPI extern int ECORE_EVENT_MOUSE_OUT;
+   EAPI extern int ECORE_EVENT_AXIS_UPDATE;
 
 #define ECORE_EVENT_MODIFIER_SHIFT      0x0001
 #define ECORE_EVENT_MODIFIER_CTRL       0x0002
@@ -72,6 +73,7 @@ extern "C" {
    typedef struct _Ecore_Event_Mouse_Move   Ecore_Event_Mouse_Move;
    typedef struct _Ecore_Event_Mouse_IO     Ecore_Event_Mouse_IO;
    typedef struct _Ecore_Event_Modifiers    Ecore_Event_Modifiers;
+   typedef struct _Ecore_Event_Axis_Update  Ecore_Event_Axis_Update;
    
    typedef enum _Ecore_Event_Modifier
      {
@@ -204,6 +206,40 @@ extern "C" {
         } multi;
      };
    
+   enum _Ecore_Axis_Label {
+	   ECORE_AXIS_LABEL_UNKNOWN,
+	   ECORE_AXIS_LABEL_X,             /* Position along physical X axis; not window relative */
+	   ECORE_AXIS_LABEL_Y,             /* Position along physical Y axis; not window relative */
+	   ECORE_AXIS_LABEL_PRESSURE,      /* Force applied to tool tip; Range: [0.0, 1.0]. Unit: Unitless */
+	   ECORE_AXIS_LABEL_DISTANCE,      /* Relative distance along physical Z axis; Range: [0.0, 1.0] */
+	   ECORE_AXIS_LABEL_AZIMUTH,       /* Angle of tool about the Z axis from positive X axis; Range: [-PI, PI] radians */
+	   ECORE_AXIS_LABEL_TILT,          /* Angle of tool about plane of sensor from positive Z axis; Range: [0.0, PI] radians */
+	   ECORE_AXIS_LABEL_TWIST,         /* Angle of tool about tool's major axis from tool's "natural" position; Range: [-PI, PI] radians */
+	   ECORE_AXIS_LABEL_TOUCH_WIDTH_MAJOR,   /* Length of contact ellipse along AZIMUTH */
+	   ECORE_AXIS_LABEL_TOUCH_WIDTH_MINOR,   /* Length of contact ellipse perpendicular to AZIMUTH */
+	   ECORE_AXIS_LABEL_TOOL_WIDTH_MAJOR,    /* Length of tool ellipse along AZIMUTH */
+	   ECORE_AXIS_LABEL_TOOL_WIDTH_MINOR     /* Length of tool ellipse perpendicular to AZIMUTH */
+   };
+
+   struct _Ecore_Axis {
+	   enum _Ecore_Axis_Label label;
+	   double value;
+   };
+
+   struct _Ecore_Event_Axis_Update
+   {
+      Ecore_Window     window;
+      Ecore_Window     root_window;
+      Ecore_Window     event_window;
+
+	   unsigned int timestamp;
+	   int device;
+	   int toolid;
+
+	   int naxis;
+	   struct _Ecore_Axis *axis;
+   };
+
    struct _Ecore_Event_Mouse_IO
      {
         Ecore_Window     window;

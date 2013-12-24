@@ -10,6 +10,7 @@
 
 #ifdef ECORE_XI2
 #include "Ecore_Input.h"
+#include <xorg/xserver-properties.h>
 #endif /* ifdef ECORE_XI2 */
 
 int _ecore_x_xi2_opcode = -1;
@@ -416,6 +417,89 @@ _ecore_x_input_multi_handler(XEvent *xevent)
 #endif /* ifdef ECORE_XI2 */
 }
 
+int count_bits(long n) {
+  unsigned int c; // c accumulates the total bits set in v
+  for (c = 0; n; c++)
+    n &= n - 1; // clear the least significant bit set
+  return c;
+}
+
+void
+_ecore_x_input_axis_handler(XEvent *xevent, XIDeviceInfo *dev)
+{
+#ifdef ECORE_XI2
+   if (xevent->type != GenericEvent) return;
+
+   XIDeviceEvent *evd = (XIDeviceEvent *)(xevent->xcookie.data);
+   int devid = evd->deviceid;
+
+   int n = count_bits(*evd->valuators.mask);
+   struct _Ecore_Axis *axis = calloc(n, sizeof(struct _Ecore_Axis));
+   if (!axis)
+      return;
+
+   struct _Ecore_Axis *axis_ptr = axis;
+   int i;
+   int j = 0;
+   for (i = 0; i < dev->num_classes; i++)
+      {
+         if (dev->classes[i]->type == XIValuatorClass)
+            {
+               XIValuatorClassInfo* class = ((XIValuatorClassInfo*)dev->classes[i]);
+
+               //TODO: Cache the results of XInternAtom and migrate to XInternAtoms
+               //TODO: Add support for TILT and AZIMUTH
+               //FIXME: Stop assuming the TWIST range is a whole circle!
+               if (*evd->valuators.mask & (1 << class->number))
+                  {
+                     if (class->label == XInternAtom(evd->display, AXIS_LABEL_PROP_ABS_X, 1))
+                        {
+                           axis_ptr->label = ECORE_AXIS_LABEL_X;
+                           axis_ptr->value = evd->valuators.values[j];
+                        }
+                     else if (class->label == XInternAtom(evd->display, AXIS_LABEL_PROP_ABS_Y, 1))
+                        {
+                           axis_ptr->label = ECORE_AXIS_LABEL_Y;
+                           axis_ptr->value = evd->valuators.values[j];
+                        }
+                     else if (class->label == XInternAtom(evd->display, AXIS_LABEL_PROP_ABS_PRESSURE, 1))
+                        {
+                           axis_ptr->label = ECORE_AXIS_LABEL_PRESSURE;
+                           axis_ptr->value = (evd->valuators.values[j] - class->min) / (class->max - class->min);
+                        }
+                     else if (class->label == XInternAtom(evd->display, AXIS_LABEL_PROP_ABS_DISTANCE, 1))
+                        {
+                           axis_ptr->label = ECORE_AXIS_LABEL_DISTANCE;
+                           axis_ptr->value = (evd->valuators.values[j] - class->min) / (class->max - class->min);
+                        }
+                     else if (class->label == XInternAtom(evd->display, AXIS_LABEL_PROP_ABS_RZ, 1) ||
+                              class->label == XInternAtom(evd->display, AXIS_LABEL_PROP_ABS_WHEEL, 1))
+                        {
+                           axis_ptr->label = ECORE_AXIS_LABEL_TWIST;
+                           axis_ptr->value = 6.28318530718 * (evd->valuators.values[j] - class->min) / (class->max - class->min);
+                        }
+                     else
+                        {
+                        axis_ptr->label = ECORE_AXIS_LABEL_UNKNOWN;
+                        axis_ptr->value = evd->valuators.values[j];
+                        }
+                     axis_ptr++;
+                  }
+               j++;
+            }
+      }
+
+   _ecore_x_axis_update(evd->child ? evd->child : evd->event,
+                        evd->event,
+                        evd->root,
+                        evd->time,
+                        devid,
+                        evd->detail,
+                        n,
+                        axis);
+#endif /* ifdef ECORE_XI2 */
+}
+
 XIDeviceInfo*
 _ecore_x_input_device_lookup(int deviceid)
 {
@@ -467,6 +551,10 @@ _ecore_x_input_handler(XEvent *xevent)
          else if (dev->use == XIFloatingSlave)
             _ecore_x_input_mouse_handler(xevent);
 
+         if (dev->use != XIMasterPointer)
+           {
+              _ecore_x_input_axis_handler(xevent, dev);
+           }
          break;
          }
       }
